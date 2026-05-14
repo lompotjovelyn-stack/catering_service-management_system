@@ -27,6 +27,15 @@ function getDbConfig() {
     return urlConfig;
   }
 
+  const isProduction = process.env.NODE_ENV === "production" || Boolean(process.env.RENDER || process.env.RENDER_ENV);
+  const hasDbEnv = Boolean(process.env.DB_HOST || process.env.DB_USER || process.env.DB_PASSWORD || process.env.DB_NAME);
+
+  if (!hasDbEnv && isProduction) {
+    throw new Error(
+      "Missing database configuration in production. Set DATABASE_URL or DB_HOST, DB_USER, DB_PASSWORD, DB_NAME in Render environment variables."
+    );
+  }
+
   return {
     host: process.env.DB_HOST || "localhost",
     user: process.env.DB_USER || "root",

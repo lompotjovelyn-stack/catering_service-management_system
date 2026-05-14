@@ -1,19 +1,18 @@
 # Catering Service Management System
 
-A Node.js + Express + MySQL web application for managing catering services including customers, bookings, menu packages, payments, and event schedules.
+A web-based platform to manage catering operations — including menu creation, event booking, customer records, staff assignment, inventory tracking, and billing. Suitable for small to medium catering businesses.
 
 ---
 
 ## Features
 
-- Role-based login (Admin, Staff, Customer)
-- Dashboard for each user type
-- Customer management
-- Menu package management
-- Booking system
-- Payment tracking
-- Event schedules
-- Summary dashboard
+- Add, edit, delete food menus & packages
+- Accept and manage booking requests
+- Record customer details & history
+- Assign staff and track availability
+- Track ingredients & inventory stock
+- Generate invoices & receipts
+- Admin dashboard & reports
 
 ---
 
