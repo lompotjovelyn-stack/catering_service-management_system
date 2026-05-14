@@ -1,24 +1,73 @@
 const mysql = require("mysql2/promise");
-
-const DB_NAME = process.env.DB_NAME || "catering_service_db";
-
-const dbConfig = {
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-};
+const { URL } = require("url");
 
 let pool;
 
-async function connectDatabase() {
-  const setup = await mysql.createConnection(dbConfig);
-  await setup.query(`CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\``);
-  await setup.end();
+function parseDatabaseUrl() {
+  const databaseUrl = process.env.DATABASE_URL || process.env.MYSQL_URL || process.env.CLEARDB_DATABASE_URL;
+  if (!databaseUrl) {
+    return null;
+  }
 
-  pool = mysql.createPool({ ...dbConfig, database: DB_NAME });
+  const parsed = new URL(databaseUrl);
+  const database = parsed.pathname?.replace(/^\//, "") || undefined;
+
+  return {
+    host: parsed.hostname,
+    port: parsed.port ? Number(parsed.port) : 3306,
+    user: decodeURIComponent(parsed.username),
+    password: decodeURIComponent(parsed.password),
+    database,
+  };
+}
+
+function getDbConfig() {
+  const urlConfig = parseDatabaseUrl();
+  if (urlConfig) {
+    return urlConfig;
+  }
+
+  return {
+    host: process.env.DB_HOST || "localhost",
+    user: process.env.DB_USER || "root",
+    password: process.env.DB_PASSWORD || "",
+    database: process.env.DB_NAME || "catering_service_db",
+  };
+}
+
+async function connectDatabase() {
+  const config = getDbConfig();
+  if (!config.database) {
+    throw new Error("Missing database name. Set DB_NAME or use DATABASE_URL with a database path.");
+  }
+
+  const shouldCreateDatabase = process.env.DB_CREATE
+    ? process.env.DB_CREATE !== "false"
+    : !process.env.DATABASE_URL && !process.env.MYSQL_URL && !process.env.CLEARDB_DATABASE_URL;
+
+  if (shouldCreateDatabase) {
+    const setup = await mysql.createConnection({
+      host: config.host,
+      port: config.port,
+      user: config.user,
+      password: config.password,
+    });
+
+    await setup.query(`CREATE DATABASE IF NOT EXISTS \`${config.database}\``);
+    await setup.end();
+  }
+
+  pool = mysql.createPool({
+    host: config.host,
+    port: config.port,
+    user: config.user,
+    password: config.password,
+    database: config.database,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+  });
+
   return pool;
 }
 
@@ -35,7 +84,6 @@ async function query(sql, params = []) {
 }
 
 module.exports = {
-  DB_NAME,
   connectDatabase,
   getPool,
   query,
