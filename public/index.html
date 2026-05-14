@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Catering Service Management System</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main id="login-screen" class="login-shell">
+      <section class="login-card">
+        <div>
+          <p class="eyebrow">Catering Service</p>
+          <h1>Management System</h1>
+          <p class="muted">Sign in as admin, staff, or customer. Each role opens a separate page.</p>
+        </div>
+
+        <form id="login-form" class="stack">
+          <label>
+            Username
+            <input id="username" name="username" autocomplete="username" required />
+          </label>
+          <label>
+            Password
+            <input id="password" name="password" type="password" autocomplete="current-password" required />
+          </label>
+          <button type="submit">Log in</button>
+          <p id="login-message" class="message"></p>
+        </form>
+
+        <div class="demo-users">
+          <span><strong>Admin</strong> admin / admin123</span>
+          <span><strong>Staff</strong> staff / staff123</span>
+          <span><strong>Customer</strong> maria / customer123</span>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

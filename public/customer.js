@@ -1,0 +1,1 @@
+bootDashboard("customer");
