@@ -1,9 +1,7 @@
 function showApp() {
   document.body.dataset.role = state.user.role;
   document.querySelector("#role-label").textContent = `${state.user.username} - ${roleLabels[state.user.role] || state.user.role}`;
-  document.querySelector("#permission-note").textContent = canEdit()
-    ? "Admin and staff access: add, edit, delete enabled"
-    : "Customer access: own records only, view only";
+  document.querySelector("#permission-note").textContent = "";
 }
 
 function setActiveView(name) {
