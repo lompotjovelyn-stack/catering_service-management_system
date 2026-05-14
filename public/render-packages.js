@@ -30,6 +30,7 @@ function renderPackages(edit = {}) {
   views.packages.innerHTML = panel(
     "Menu Packages",
     formHtml,
-    `<table><thead><tr><th>Name</th><th>Description</th><th>Price</th><th>Pax</th>${canEdit() ? "<th>Actions</th>" : ""}</tr></thead><tbody>${rows || emptyRow(canEdit() ? 5 : 4)}</tbody></table>`
+    `<table><thead><tr><th>Name</th><th>Description</th><th>Price</th><th>Pax</th>${canManagePackages() ? "<th>Actions</th>" : ""}</tr></thead><tbody>${rows || emptyRow(canManagePackages() ? 5 : 4)}</tbody></table>`,
+    canManagePackages()
   );
 }

@@ -24,14 +24,14 @@ function optionList(items, labelKey, selected) {
     .join("");
 }
 
-function panel(title, formHtml, tableHtml) {
+function panel(title, formHtml, tableHtml, showForm = canEdit()) {
   return `
     <section class="panel">
       <div class="panel-header">
         <h2>${title}</h2>
         <span class="pill role-pill">${canEdit() ? "Editable by admin/staff" : "Customer view only"}</span>
       </div>
-      ${canEdit() ? `<div class="panel-body">${formHtml}</div>` : ""}
+      ${showForm ? `<div class="panel-body">${formHtml}</div>` : ""}
       <div class="table-wrap">${tableHtml}</div>
     </section>
   `;

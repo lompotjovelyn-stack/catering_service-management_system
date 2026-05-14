@@ -10,6 +10,18 @@ function canEdit() {
   return state.user && ["admin", "staff"].includes(state.user.role);
 }
 
+function canManagePackages() {
+  return state.user && ["admin", "staff", "customer"].includes(state.user.role);
+}
+
+function canManageBookings() {
+  return Boolean(state.user);
+}
+
+function canApproveBookings() {
+  return state.user && ["admin", "staff"].includes(state.user.role);
+}
+
 function peso(value) {
   return Number(value || 0).toLocaleString("en-PH", {
     style: "currency",

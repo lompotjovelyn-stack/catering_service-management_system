@@ -61,6 +61,18 @@ document.addEventListener("click", async (event) => {
     ["deletePayment", "payments"],
   ];
 
+  if (target.dataset.approveBooking) {
+    try {
+      await api(`/api/bookings/${target.dataset.approveBooking}`, {
+        method: "PUT",
+        body: JSON.stringify({ status: "Confirmed" }),
+      });
+      await loadAll();
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
   for (const [key, resource] of deleteMap) {
     if (target.dataset[key]) {
       try {

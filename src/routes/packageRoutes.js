@@ -12,7 +12,7 @@ router.get("/packages", requireAuth, async (req, res, next) => {
   }
 });
 
-router.post("/packages", requireAuth, requireEditor, async (req, res, next) => {
+router.post("/packages", requireAuth, async (req, res, next) => {
   try {
     const { package_name, description, price, pax } = req.body;
     await query("INSERT INTO menu_packages (package_name, description, price, pax) VALUES (?, ?, ?, ?)", [
@@ -27,7 +27,7 @@ router.post("/packages", requireAuth, requireEditor, async (req, res, next) => {
   }
 });
 
-router.put("/packages/:id", requireAuth, requireEditor, async (req, res, next) => {
+router.put("/packages/:id", requireAuth, async (req, res, next) => {
   try {
     const { package_name, description, price, pax } = req.body;
     await query("UPDATE menu_packages SET package_name = ?, description = ?, price = ?, pax = ? WHERE id = ?", [
@@ -43,7 +43,7 @@ router.put("/packages/:id", requireAuth, requireEditor, async (req, res, next) =
   }
 });
 
-router.delete("/packages/:id", requireAuth, requireEditor, async (req, res, next) => {
+router.delete("/packages/:id", requireAuth, async (req, res, next) => {
   try {
     await query("DELETE FROM menu_packages WHERE id = ?", [req.params.id]);
     res.json({ message: "Package deleted." });
