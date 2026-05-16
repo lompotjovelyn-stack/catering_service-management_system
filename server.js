@@ -33,7 +33,3 @@ initDatabase()
     console.error("Database connection failed:", error);
     process.exit(1);
   });
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=
-DB_NAME=your_database_name
