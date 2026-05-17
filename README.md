@@ -62,16 +62,6 @@ http://localhost:3000
 
 ---
 
-## Demo Accounts
-
-| Role     | Username | Password    |
-| -------- | -------- | ----------- |
-| Admin    | admin    | admin123    |
-| Staff    | staff    | staff123    |
-| Customer | maria    | customer123 |
-
----
-
 ## Project Structure
 
 ```

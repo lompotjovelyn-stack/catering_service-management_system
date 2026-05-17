@@ -2,6 +2,7 @@ const express = require("express");
 const { query } = require("../config/database");
 const { requireAuth, requireEditor } = require("../middleware/auth");
 const { bookingCustomerFilter } = require("../utils/customerFilter");
+const { generatePaymentQRCode } = require("../utils/qrcode");
 
 const router = express.Router();
 
@@ -18,6 +19,30 @@ router.get("/payments", requireAuth, async (req, res, next) => {
       filter.params
     );
     res.json(rows);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/payments/:id/qrcode", requireAuth, async (req, res, next) => {
+  try {
+    const [payment] = await query("SELECT * FROM payments WHERE id = ?", [req.params.id]);
+    if (!payment) {
+      return res.status(404).json({ error: "Payment not found" });
+    }
+
+    // Check customer filter
+    const filter = bookingCustomerFilter(req.user, "b");
+    const [booking] = await query(
+      `SELECT b.* FROM bookings b WHERE b.id = ? ${filter.sql}`,
+      [payment.booking_id, ...filter.params]
+    );
+    if (!booking) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    const qrCodeDataURL = await generatePaymentQRCode(payment.id, payment.amount);
+    res.json({ qrCode: qrCodeDataURL });
   } catch (error) {
     next(error);
   }

@@ -33,7 +33,7 @@ function renderPayments(edit = {}) {
           <td>${formatDate(item.payment_date)}</td>
           <td>${escapeHtml(item.method)}</td>
           <td><span class="status">${escapeHtml(item.status)}</span></td>
-          ${canEdit() ? `<td class="actions"><button data-edit-payment="${item.id}">Edit</button><button class="danger" data-delete-payment="${item.id}">Delete</button></td>` : ""}
+          ${canEdit() ? `<td class="actions"><button data-view-qrcode="${item.id}" title="View QR Code">QR</button><button data-edit-payment="${item.id}">Edit</button><button class="danger" data-delete-payment="${item.id}">Delete</button></td>` : `<td class="actions"><button data-view-qrcode="${item.id}" title="View QR Code">QR</button></td>`}
         </tr>
       `
     )
@@ -42,6 +42,6 @@ function renderPayments(edit = {}) {
   views.payments.innerHTML = panel(
     title,
     formHtml,
-    `<table><thead><tr><th>Customer</th><th>Event</th><th>Amount</th><th>Date</th><th>Method</th><th>Status</th>${canEdit() ? "<th>Actions</th>" : ""}</tr></thead><tbody>${rows || emptyRow(canEdit() ? 7 : 6)}</tbody></table>`
+    `<table><thead><tr><th>Customer</th><th>Event</th><th>Amount</th><th>Date</th><th>Method</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows || emptyRow(7)}</tbody></table>`
   );
 }
