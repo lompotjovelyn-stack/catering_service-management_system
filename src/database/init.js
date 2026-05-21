@@ -1,0 +1,127 @@
+const { connectDatabase, getPool } = require("../config/database");
+const seedDatabase = require("./seed");
+
+async function initDatabase() {
+  await connectDatabase();
+  const pool = getPool();
+
+  async function columnExists(tableName, columnName) {
+    const [rows] = await pool.query(
+      `SELECT COUNT(*) AS total
+       FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+      [tableName, columnName]
+    );
+    return rows[0].total > 0;
+  }
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS customers (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      full_name VARCHAR(120) NOT NULL,
+      email VARCHAR(120) NOT NULL UNIQUE,
+      phone VARCHAR(40) NOT NULL,
+      address VARCHAR(255) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      username VARCHAR(60) NOT NULL UNIQUE,
+      password_hash VARCHAR(64) NOT NULL,
+      role ENUM('admin', 'staff', 'customer') NOT NULL,
+      customer_id INT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
+    )
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS menu_packages (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      package_name VARCHAR(120) NOT NULL,
+      description TEXT NOT NULL,
+      image_url VARCHAR(500) NULL,
+      price DECIMAL(10,2) NOT NULL DEFAULT 0,
+      pax INT NOT NULL DEFAULT 0,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  if (!(await columnExists("menu_packages", "image_url"))) {
+    await pool.query("ALTER TABLE menu_packages ADD COLUMN image_url VARCHAR(500) NULL AFTER description");
+  }
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS food_items (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      food_name VARCHAR(120) NOT NULL UNIQUE,
+      category ENUM('Main Dish', 'Rice', 'Dessert', 'Drinks') NOT NULL,
+      description TEXT NOT NULL,
+      image_url VARCHAR(500) NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS bookings (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      customer_id INT NOT NULL,
+      package_id INT NOT NULL,
+      order_type ENUM('Package', 'Per Head') NOT NULL DEFAULT 'Package',
+      selected_food_items TEXT NULL,
+      per_head_price DECIMAL(10,2) NOT NULL DEFAULT 250,
+      event_type VARCHAR(100) NOT NULL,
+      event_date DATE NOT NULL,
+      event_time TIME NOT NULL,
+      venue VARCHAR(255) NOT NULL,
+      guests INT NOT NULL,
+      status ENUM('Pending', 'Confirmed', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Pending',
+      notes TEXT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE,
+      FOREIGN KEY (package_id) REFERENCES menu_packages(id) ON DELETE RESTRICT
+    )
+  `);
+
+  if (!(await columnExists("bookings", "order_type"))) {
+    await pool.query("ALTER TABLE bookings ADD COLUMN order_type ENUM('Package', 'Per Head') NOT NULL DEFAULT 'Package' AFTER package_id");
+  }
+
+  if (!(await columnExists("bookings", "selected_food_items"))) {
+    await pool.query("ALTER TABLE bookings ADD COLUMN selected_food_items TEXT NULL AFTER order_type");
+  }
+
+  if (!(await columnExists("bookings", "per_head_price"))) {
+    await pool.query("ALTER TABLE bookings ADD COLUMN per_head_price DECIMAL(10,2) NOT NULL DEFAULT 250 AFTER selected_food_items");
+  }
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS payments (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      booking_id INT NOT NULL,
+      amount DECIMAL(10,2) NOT NULL,
+      payment_date DATE NOT NULL,
+      method VARCHAR(60) NOT NULL,
+      status ENUM('Unpaid', 'Partial', 'Paid', 'Refunded') NOT NULL DEFAULT 'Partial',
+      reference_number VARCHAR(80) NULL,
+      processed_at TIMESTAMP NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
+    )
+  `);
+
+  if (!(await columnExists("payments", "reference_number"))) {
+    await pool.query("ALTER TABLE payments ADD COLUMN reference_number VARCHAR(80) NULL AFTER status");
+  }
+
+  if (!(await columnExists("payments", "processed_at"))) {
+    await pool.query("ALTER TABLE payments ADD COLUMN processed_at TIMESTAMP NULL AFTER reference_number");
+  }
+
+  await seedDatabase();
+}
+
+module.exports = initDatabase;

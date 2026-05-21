@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Catering Service Management System</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main id="login-screen" class="login-shell">
+      <section class="login-card">
+        <div>
+          <p class="eyebrow">Catering Service</p>
+          <h1>Management System</h1>
+        </div>
+
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" data-auth-tab="login">Log in</button>
+          <button type="button" class="auth-tab" data-auth-tab="register">Register</button>
+        </div>
+
+        <form id="login-form" class="stack auth-form active-auth-form">
+          <label>
+            Username
+            <input id="username" name="username" autocomplete="username" required />
+          </label>
+          <label>
+            Password
+            <input id="password" name="password" type="password" autocomplete="current-password" required />
+          </label>
+          <button type="submit">Log in</button>
+          <p id="login-message" class="message"></p>
+        </form>
+
+        <form id="register-form" class="stack auth-form">
+          <label>
+            Full name
+            <input name="full_name" autocomplete="name" required />
+          </label>
+          <label>
+            Email
+            <input name="email" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            Phone
+            <input name="phone" autocomplete="tel" required />
+          </label>
+          <label>
+            Address
+            <input name="address" autocomplete="street-address" required />
+          </label>
+          <label>
+            Username
+            <input name="username" autocomplete="username" required />
+          </label>
+          <label>
+            Password
+            <input name="password" type="password" autocomplete="new-password" required />
+          </label>
+          <button type="submit">Create customer account</button>
+          <p id="register-message" class="message"></p>
+        </form>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

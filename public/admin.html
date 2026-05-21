@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Catering Service</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body data-page-role="admin">
+    <main id="app-screen" class="app-shell">
+      <aside class="sidebar">
+        <div>
+          <p class="eyebrow">Admin</p>
+          <h2>Dashboard</h2>
+        </div>
+        <nav>
+          <button class="nav-link active" data-view="overview">Overview</button>
+          <button class="nav-link" data-view="customers">Customers</button>
+          <button class="nav-link" data-view="packages">Food Menu</button>
+          <button class="nav-link" data-view="bookings">Bookings</button>
+          <button class="nav-link" data-view="payments">Payments</button>
+          <button class="nav-link" data-view="schedules">Schedules</button>
+          <button class="nav-link" data-view="accounts">Accounts</button>
+          <button class="nav-link" data-view="reports">Reports</button>
+        </nav>
+        <button id="logout-btn" class="ghost">Log out</button>
+      </aside>
+
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <p id="role-label" class="eyebrow">Signed in</p>
+            <h1 id="page-title">Overview</h1>
+          </div>
+          <p id="permission-note" class="pill"></p>
+        </header>
+
+        <section id="overview-view" class="view active-view">
+          <div class="metric-grid">
+            <article class="metric"><span>Customers</span><strong id="metric-customers">0</strong></article>
+            <article class="metric"><span>Bookings</span><strong id="metric-bookings">0</strong></article>
+            <article class="metric"><span>Payments Total</span><strong id="metric-revenue">0</strong></article>
+          </div>
+          <section class="panel">
+            <div class="panel-header"><h2>Upcoming Events</h2></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Customer</th><th>Event</th><th>Date</th><th>Time</th><th>Venue</th><th>Status</th></tr>
+                </thead>
+                <tbody id="upcoming-table"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section id="customers-view" class="view"></section>
+        <section id="packages-view" class="view"></section>
+        <section id="bookings-view" class="view"></section>
+        <section id="payments-view" class="view"></section>
+        <section id="schedules-view" class="view"></section>
+        <section id="accounts-view" class="view"></section>
+        <section id="reports-view" class="view"></section>
+      </section>
+    </main>
+
+    <script src="/dashboard-state.js"></script>
+    <script src="/dashboard-utils.js"></script>
+    <script src="/dashboard-layout.js"></script>
+    <script src="/render-overview.js"></script>
+    <script src="/render-customers.js"></script>
+    <script src="/render-packages.js"></script>
+    <script src="/render-bookings.js"></script>
+    <script src="/render-payments.js"></script>
+    <script src="/render-schedules.js"></script>
+    <script src="/render-accounts.js"></script>
+    <script src="/render-reports.js"></script>
+    <script src="/dashboard-api.js"></script>
+    <script src="/dashboard-events.js"></script>
+    <script src="/dashboard-auth.js"></script>
+    <script src="/admin.js"></script>
+  </body>
+</html>
