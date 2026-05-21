@@ -9,6 +9,7 @@ function setActiveView(name) {
     button.classList.toggle("active", button.dataset.view === name);
   });
   Object.entries(views).forEach(([key, view]) => {
+    if (!view) return;
     view.classList.toggle("active-view", key === name);
   });
   document.querySelector("#page-title").textContent = titles[name];

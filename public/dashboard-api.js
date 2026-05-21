@@ -16,18 +16,20 @@ async function api(path, options = {}) {
 }
 
 async function loadAll() {
-  const [summary, customers, packagesData, bookings, payments] = await Promise.all([
+  const [summary, customers, packagesData, bookings, payments, users] = await Promise.all([
     api("/api/summary"),
     api("/api/customers"),
     api("/api/packages"),
     api("/api/bookings"),
     api("/api/payments"),
+    canManageAccounts() ? api("/api/users") : Promise.resolve([]),
   ]);
 
   state.customers = customers;
   state.packages = packagesData;
   state.bookings = bookings;
   state.payments = payments;
+  state.users = users;
 
   renderOverview(summary);
   renderCustomers();
@@ -35,6 +37,8 @@ async function loadAll() {
   renderBookings();
   renderPayments();
   renderSchedules();
+  if (views.accounts) renderAccounts();
+  if (views.reports) renderReports(summary);
 }
 
 async function saveRecord(resource, payload) {

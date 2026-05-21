@@ -6,6 +6,7 @@ const packageRoutes = require("./packageRoutes");
 const paymentRoutes = require("./paymentRoutes");
 const scheduleRoutes = require("./scheduleRoutes");
 const summaryRoutes = require("./summaryRoutes");
+const userRoutes = require("./userRoutes");
 
 function registerRoutes(app) {
   app.use("/api", healthRoutes);
@@ -16,6 +17,7 @@ function registerRoutes(app) {
   app.use("/api", bookingRoutes);
   app.use("/api", paymentRoutes);
   app.use("/api", scheduleRoutes);
+  app.use("/api", userRoutes);
 }
 
 module.exports = registerRoutes;

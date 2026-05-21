@@ -14,8 +14,9 @@ function renderPayments(edit = {}) {
       <label class="wide">Booking<select name="booking_id" required>${bookingOptions}</select></label>
       <label>Amount<input name="amount" type="number" min="0" step="0.01" value="${edit.amount || ""}" required /></label>
       <label>Payment date<input name="payment_date" type="date" value="${dateInput(edit.payment_date)}" required /></label>
-      <label>Method<input name="method" value="${escapeHtml(edit.method)}" required /></label>
+      <label>Method<select name="method" required>${["Cash", "GCash", "Bank Transfer"].map((method) => `<option value="${method}" ${edit.method === method ? "selected" : ""}>${method}</option>`).join("")}</select></label>
       <label>Status<select name="status">${["Unpaid", "Partial", "Paid", "Refunded"].map((status) => `<option ${edit.status === status ? "selected" : ""}>${status}</option>`).join("")}</select></label>
+      <label class="wide">Reference no.<input name="reference_number" value="${escapeHtml(edit.reference_number)}" /></label>
       <div class="actions full">
         <button type="submit">${edit.id ? "Update Payment" : "Add Payment"}</button>
         ${edit.id ? '<button type="button" data-cancel="payments" class="ghost">Cancel</button>' : ""}
@@ -33,7 +34,8 @@ function renderPayments(edit = {}) {
           <td>${formatDate(item.payment_date)}</td>
           <td>${escapeHtml(item.method)}</td>
           <td><span class="status">${escapeHtml(item.status)}</span></td>
-          ${canEdit() ? `<td class="actions"><button data-view-qrcode="${item.id}" title="View QR Code">QR</button><button data-edit-payment="${item.id}">Edit</button><button class="danger" data-delete-payment="${item.id}">Delete</button></td>` : `<td class="actions"><button data-view-qrcode="${item.id}" title="View QR Code">QR</button></td>`}
+          <td>${escapeHtml(item.reference_number || "")}</td>
+          ${canEdit() ? `<td class="actions"><button data-view-qrcode="${item.id}" title="View QR Code">QR</button>${item.status !== "Paid" ? `<button class="secondary" data-process-gcash="${item.id}">Pay GCash</button>` : ""}<button data-edit-payment="${item.id}">Edit</button><button class="danger" data-delete-payment="${item.id}">Delete</button></td>` : `<td class="actions"><button data-view-qrcode="${item.id}" title="View QR Code">QR</button>${item.status !== "Paid" ? `<button class="secondary" data-process-gcash="${item.id}">Pay GCash</button>` : ""}</td>`}
         </tr>
       `
     )
@@ -42,6 +44,7 @@ function renderPayments(edit = {}) {
   views.payments.innerHTML = panel(
     title,
     formHtml,
-    `<table><thead><tr><th>Customer</th><th>Event</th><th>Amount</th><th>Date</th><th>Method</th><th>Status</th><th>Actions</th></tr></thead><tbody>${rows || emptyRow(7)}</tbody></table>`
+    `<table><thead><tr><th>Customer</th><th>Event</th><th>Amount</th><th>Date</th><th>Method</th><th>Status</th><th>Reference</th><th>Actions</th></tr></thead><tbody>${rows || emptyRow(8)}</tbody></table>`,
+    canEdit()
   );
 }

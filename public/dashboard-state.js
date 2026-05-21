@@ -5,6 +5,7 @@ const state = {
   packages: [],
   bookings: [],
   payments: [],
+  users: [],
 };
 
 const views = {
@@ -14,6 +15,8 @@ const views = {
   bookings: document.querySelector("#bookings-view"),
   payments: document.querySelector("#payments-view"),
   schedules: document.querySelector("#schedules-view"),
+  accounts: document.querySelector("#accounts-view"),
+  reports: document.querySelector("#reports-view"),
 };
 
 const titles = {
@@ -23,6 +26,8 @@ const titles = {
   bookings: document.body.dataset.pageRole === "customer" ? "My Bookings" : "Bookings",
   payments: document.body.dataset.pageRole === "customer" ? "My Payments" : "Payments",
   schedules: document.body.dataset.pageRole === "customer" ? "My Schedule" : "Event Schedules",
+  accounts: "Accounts",
+  reports: "Reports",
 };
 
 const roleLabels = {

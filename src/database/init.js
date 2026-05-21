@@ -5,6 +5,16 @@ async function initDatabase() {
   await connectDatabase();
   const pool = getPool();
 
+  async function columnExists(tableName, columnName) {
+    const [rows] = await pool.query(
+      `SELECT COUNT(*) AS total
+       FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+      [tableName, columnName]
+    );
+    return rows[0].total > 0;
+  }
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS customers (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -33,11 +43,16 @@ async function initDatabase() {
       id INT AUTO_INCREMENT PRIMARY KEY,
       package_name VARCHAR(120) NOT NULL,
       description TEXT NOT NULL,
+      image_url VARCHAR(500) NULL,
       price DECIMAL(10,2) NOT NULL DEFAULT 0,
       pax INT NOT NULL DEFAULT 0,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  if (!(await columnExists("menu_packages", "image_url"))) {
+    await pool.query("ALTER TABLE menu_packages ADD COLUMN image_url VARCHAR(500) NULL AFTER description");
+  }
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS bookings (
@@ -65,10 +80,20 @@ async function initDatabase() {
       payment_date DATE NOT NULL,
       method VARCHAR(60) NOT NULL,
       status ENUM('Unpaid', 'Partial', 'Paid', 'Refunded') NOT NULL DEFAULT 'Partial',
+      reference_number VARCHAR(80) NULL,
+      processed_at TIMESTAMP NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
     )
   `);
+
+  if (!(await columnExists("payments", "reference_number"))) {
+    await pool.query("ALTER TABLE payments ADD COLUMN reference_number VARCHAR(80) NULL AFTER status");
+  }
+
+  if (!(await columnExists("payments", "processed_at"))) {
+    await pool.query("ALTER TABLE payments ADD COLUMN processed_at TIMESTAMP NULL AFTER reference_number");
+  }
 
   await seedDatabase();
 }

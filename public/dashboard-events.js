@@ -22,6 +22,7 @@ document.addEventListener("submit", async (event) => {
     package: "packages",
     booking: "bookings",
     payment: "payments",
+    account: "users",
   }[type];
 
   try {
@@ -39,6 +40,8 @@ document.addEventListener("click", async (event) => {
     renderPackages();
     renderBookings();
     renderPayments();
+    if (views.accounts && typeof renderAccounts === "function") renderAccounts();
+    if (views.reports && typeof renderReports === "function") renderReports();
   }
 
   const editMap = [
@@ -47,6 +50,9 @@ document.addEventListener("click", async (event) => {
     ["editBooking", state.bookings, renderBookings],
     ["editPayment", state.payments, renderPayments],
   ];
+  if (views.accounts && typeof renderAccounts === "function") {
+    editMap.push(["editAccount", state.users, renderAccounts]);
+  }
 
   editMap.forEach(([key, list, render]) => {
     if (target.dataset[key]) {
@@ -59,6 +65,7 @@ document.addEventListener("click", async (event) => {
     ["deletePackage", "packages"],
     ["deleteBooking", "bookings"],
     ["deletePayment", "payments"],
+    ["deleteAccount", "users"],
   ];
 
   if (target.dataset.approveBooking) {
@@ -83,7 +90,7 @@ document.addEventListener("click", async (event) => {
         <div class="modal-content">
           <div class="modal-header">
             <h2>Payment QR Code</h2>
-            <button class="close" onclick="this.closest('.modal').remove()">×</button>
+            <button class="close" onclick="this.closest('.modal').remove()">x</button>
           </div>
           <div class="modal-body" style="text-align: center; padding: 20px;">
             <img src="${response.qrCode}" alt="Payment QR Code" style="max-width: 300px; border-radius: 8px;" />
@@ -100,6 +107,22 @@ document.addEventListener("click", async (event) => {
       });
     } catch (error) {
       alert(error.message);
+    }
+  }
+
+  if (target.dataset.processGcash) {
+    try {
+      target.disabled = true;
+      target.textContent = "Processing...";
+      const response = await api(`/api/payments/${target.dataset.processGcash}/gcash/process`, {
+        method: "POST",
+      });
+      alert(`${response.message}${response.reference_number ? `\nReference: ${response.reference_number}` : ""}`);
+      await loadAll();
+    } catch (error) {
+      alert(error.message);
+      target.disabled = false;
+      target.textContent = "Pay GCash";
     }
   }
 

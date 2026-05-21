@@ -21,7 +21,15 @@ function requireEditor(req, res, next) {
   next();
 }
 
+function requireAdmin(req, res, next) {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Only admin can manage accounts." });
+  }
+  next();
+}
+
 module.exports = {
   requireAuth,
   requireEditor,
+  requireAdmin,
 };

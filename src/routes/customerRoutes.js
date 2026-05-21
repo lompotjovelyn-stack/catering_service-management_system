@@ -35,8 +35,16 @@ router.post("/customers", requireAuth, requireEditor, async (req, res, next) => 
   }
 });
 
-router.put("/customers/:id", requireAuth, requireEditor, async (req, res, next) => {
+router.put("/customers/:id", requireAuth, async (req, res, next) => {
   try {
+    if (req.user.role === "customer" && Number(req.params.id) !== Number(req.user.customer_id)) {
+      return res.status(403).json({ message: "You can only update your own profile." });
+    }
+
+    if (req.user.role !== "customer" && !["admin", "staff"].includes(req.user.role)) {
+      return res.status(403).json({ message: "Only admin and staff can edit customer records." });
+    }
+
     const { full_name, email, phone, address } = req.body;
     await query("UPDATE customers SET full_name = ?, email = ?, phone = ?, address = ? WHERE id = ?", [
       full_name,

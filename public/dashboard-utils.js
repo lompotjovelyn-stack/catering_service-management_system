@@ -11,7 +11,11 @@ function canEdit() {
 }
 
 function canManagePackages() {
-  return state.user && ["admin", "staff", "customer"].includes(state.user.role);
+  return state.user && ["admin", "staff"].includes(state.user.role);
+}
+
+function canEditCustomerProfile(item) {
+  return canEdit() || (state.user && state.user.role === "customer" && Number(item.id) === Number(state.user.customer_id));
 }
 
 function canManageBookings() {
@@ -20,6 +24,10 @@ function canManageBookings() {
 
 function canApproveBookings() {
   return state.user && ["admin", "staff"].includes(state.user.role);
+}
+
+function canManageAccounts() {
+  return state.user && state.user.role === "admin";
 }
 
 function peso(value) {
