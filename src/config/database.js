@@ -18,7 +18,19 @@ function parseDatabaseUrl() {
     user: decodeURIComponent(parsed.username),
     password: decodeURIComponent(parsed.password),
     database,
+    ssl: shouldUseSsl(parsed.hostname) ? { rejectUnauthorized: false } : undefined,
   };
+}
+
+function isLocalHost(host) {
+  return ["localhost", "127.0.0.1", "::1"].includes(host);
+}
+
+function shouldUseSsl(host) {
+  if (process.env.DB_SSL) {
+    return process.env.DB_SSL !== "false";
+  }
+  return Boolean(host && host.includes("aivencloud.com"));
 }
 
 function getDbConfig() {
@@ -36,12 +48,26 @@ function getDbConfig() {
     );
   }
 
+  const host = process.env.DB_HOST || "localhost";
+
   return {
-    host: process.env.DB_HOST || "localhost",
+    host,
     port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306,
     user: process.env.DB_USER || "root",
     password: process.env.DB_PASSWORD || "",
     database: process.env.DB_NAME || "catering_service_db",
+    ssl: shouldUseSsl(host) ? { rejectUnauthorized: false } : undefined,
+  };
+}
+
+function connectionConfig(config, includeDatabase = true) {
+  return {
+    host: config.host,
+    port: config.port,
+    user: config.user,
+    password: config.password,
+    ...(includeDatabase ? { database: config.database } : {}),
+    ...(config.ssl ? { ssl: config.ssl } : {}),
   };
 }
 
@@ -53,26 +79,17 @@ async function connectDatabase() {
 
   const shouldCreateDatabase = process.env.DB_CREATE
     ? process.env.DB_CREATE !== "false"
-    : !process.env.DATABASE_URL && !process.env.MYSQL_URL && !process.env.CLEARDB_DATABASE_URL;
+    : isLocalHost(config.host) && !process.env.DATABASE_URL && !process.env.MYSQL_URL && !process.env.CLEARDB_DATABASE_URL;
 
   if (shouldCreateDatabase) {
-    const setup = await mysql.createConnection({
-      host: config.host,
-      port: config.port,
-      user: config.user,
-      password: config.password,
-    });
+    const setup = await mysql.createConnection(connectionConfig(config, false));
 
     await setup.query(`CREATE DATABASE IF NOT EXISTS \`${config.database}\``);
     await setup.end();
   }
 
   pool = mysql.createPool({
-    host: config.host,
-    port: config.port,
-    user: config.user,
-    password: config.password,
-    database: config.database,
+    ...connectionConfig(config),
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
