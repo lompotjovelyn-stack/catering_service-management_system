@@ -16,10 +16,11 @@ async function api(path, options = {}) {
 }
 
 async function loadAll() {
-  const [summary, customers, packagesData, bookings, payments, users] = await Promise.all([
+  const [summary, customers, packagesData, foodItems, bookings, payments, users] = await Promise.all([
     api("/api/summary"),
     api("/api/customers"),
     api("/api/packages"),
+    api("/api/food-items"),
     api("/api/bookings"),
     api("/api/payments"),
     canManageAccounts() ? api("/api/users") : Promise.resolve([]),
@@ -27,6 +28,7 @@ async function loadAll() {
 
   state.customers = customers;
   state.packages = packagesData;
+  state.foodItems = foodItems;
   state.bookings = bookings;
   state.payments = payments;
   state.users = users;

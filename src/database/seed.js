@@ -77,6 +77,39 @@ async function seedDatabase() {
     }
   }
 
+  const foodSeeds = [
+    ["Chicken Afritada", "Main Dish", "Tender chicken in tomato sauce with potatoes and carrots.", "/assets/food/chicken-afritada.svg"],
+    ["Pork Humba", "Main Dish", "Sweet and savory braised pork with local spices.", "/assets/food/pork-humba.svg"],
+    ["Buttered Shrimp", "Main Dish", "Shrimp cooked in butter, garlic, and light seasoning.", "/assets/food/buttered-shrimp.svg"],
+    ["Beef Caldereta", "Main Dish", "Rich beef stew with vegetables and savory sauce.", "/assets/food/beef-caldereta.svg"],
+    ["Pancit Canton", "Main Dish", "Stir-fried noodles with vegetables, pork, and chicken.", "/assets/food/pancit-canton.svg"],
+    ["Steamed Rice", "Rice", "Freshly cooked white rice for every serving.", "/assets/food/steamed-rice.svg"],
+    ["Garlic Rice", "Rice", "Fragrant rice tossed with toasted garlic.", "/assets/food/garlic-rice.svg"],
+    ["Leche Flan", "Dessert", "Creamy caramel custard dessert.", "/assets/food/leche-flan.svg"],
+    ["Fruit Salad", "Dessert", "Chilled fruit salad with cream and sweet toppings.", "/assets/food/fruit-salad.svg"],
+    ["Mango Float", "Dessert", "Layered mango, cream, and graham dessert.", "/assets/food/mango-float.svg"],
+    ["Iced Tea", "Drinks", "Cold sweet tea served by the pitcher.", "/assets/food/iced-tea.svg"],
+    ["Cucumber Lemonade", "Drinks", "Refreshing cucumber and lemon drink.", "/assets/food/cucumber-lemonade.svg"],
+    ["Soft Drinks", "Drinks", "Assorted bottled soft drinks.", "/assets/food/soft-drinks.svg"],
+  ];
+
+  for (const [foodName, category, description, imageUrl] of foodSeeds) {
+    const existing = await query("SELECT id FROM food_items WHERE food_name = ? LIMIT 1", [foodName]);
+    if (!existing.length) {
+      await query(
+        "INSERT INTO food_items (food_name, category, description, image_url) VALUES (?, ?, ?, ?)",
+        [foodName, category, description, imageUrl]
+      );
+    } else {
+      await query("UPDATE food_items SET category = ?, description = ?, image_url = ? WHERE food_name = ?", [
+        category,
+        description,
+        imageUrl,
+        foodName,
+      ]);
+    }
+  }
+
   const users = await query("SELECT COUNT(*) AS total FROM users");
   if (users[0].total === 0) {
     const maria = await query("SELECT id FROM customers WHERE email = ?", ["maria@example.com"]);

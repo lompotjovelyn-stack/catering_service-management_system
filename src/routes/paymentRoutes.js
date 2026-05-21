@@ -6,6 +6,29 @@ const { generatePaymentQRCode } = require("../utils/qrcode");
 
 const router = express.Router();
 
+function isPastDate(value) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const date = new Date(`${value}T00:00:00`);
+  return Number.isNaN(date.getTime()) || date < today;
+}
+
+async function bookingAmount(bookingId) {
+  const rows = await query(
+    `SELECT b.guests, b.order_type, b.per_head_price, m.price
+     FROM bookings b
+     JOIN menu_packages m ON m.id = b.package_id
+     WHERE b.id = ?`,
+    [bookingId]
+  );
+  const booking = rows[0];
+  if (!booking) return null;
+  if (booking.order_type === "Per Head") {
+    return Number(booking.guests || 0) * Number(booking.per_head_price || 250);
+  }
+  return Number(booking.price || 0);
+}
+
 router.get("/payments", requireAuth, async (req, res, next) => {
   try {
     const filter = bookingCustomerFilter(req.user, "b");
@@ -50,7 +73,16 @@ router.get("/payments/:id/qrcode", requireAuth, async (req, res, next) => {
 
 router.post("/payments", requireAuth, requireEditor, async (req, res, next) => {
   try {
-    const { booking_id, amount, payment_date, method, status, reference_number } = req.body;
+    const { booking_id, payment_date, method, status, reference_number } = req.body;
+    if (isPastDate(payment_date)) {
+      return res.status(400).json({ message: "Choose today or a future payment date." });
+    }
+
+    const amount = await bookingAmount(booking_id);
+    if (amount === null) {
+      return res.status(400).json({ message: "Selected booking was not found." });
+    }
+
     await query(
       `INSERT INTO payments (booking_id, amount, payment_date, method, status, reference_number, processed_at)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -71,7 +103,16 @@ router.post("/payments", requireAuth, requireEditor, async (req, res, next) => {
 
 router.put("/payments/:id", requireAuth, requireEditor, async (req, res, next) => {
   try {
-    const { booking_id, amount, payment_date, method, status, reference_number } = req.body;
+    const { booking_id, payment_date, method, status, reference_number } = req.body;
+    if (isPastDate(payment_date)) {
+      return res.status(400).json({ message: "Choose today or a future payment date." });
+    }
+
+    const amount = await bookingAmount(booking_id);
+    if (amount === null) {
+      return res.status(400).json({ message: "Selected booking was not found." });
+    }
+
     await query(
       `UPDATE payments
        SET booking_id = ?, amount = ?, payment_date = ?, method = ?, status = ?, reference_number = ?, processed_at = IF(? = 'Paid', COALESCE(processed_at, NOW()), processed_at)

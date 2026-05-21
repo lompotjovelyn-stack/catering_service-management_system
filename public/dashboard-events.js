@@ -20,12 +20,29 @@ document.addEventListener("submit", async (event) => {
   const resource = {
     customer: "customers",
     package: "packages",
+    food: "food-items",
     booking: "bookings",
     payment: "payments",
     account: "users",
   }[type];
 
   try {
+    if (type === "booking" && form.querySelector("[data-order-type]")?.value === "Per Head") {
+      const requirements = [
+        ["Main Dish", 3],
+        ["Rice", 1],
+        ["Dessert", 1],
+        ["Drinks", 1],
+      ];
+      for (const [category, count] of requirements) {
+        const checked = form.querySelectorAll(`.food-choice-group[data-category="${category}"] input:checked`).length;
+        if (checked !== count) {
+          alert(`Per head menu requires ${count} ${category} choice${count > 1 ? "s" : ""}.`);
+          return;
+        }
+      }
+    }
+
     await saveRecord(resource, formData(form));
   } catch (error) {
     alert(error.message);
@@ -47,6 +64,7 @@ document.addEventListener("click", async (event) => {
   const editMap = [
     ["editCustomer", state.customers, renderCustomers],
     ["editPackage", state.packages, renderPackages],
+    ["editFood", state.foodItems, renderPackages],
     ["editBooking", state.bookings, renderBookings],
     ["editPayment", state.payments, renderPayments],
   ];
@@ -63,6 +81,7 @@ document.addEventListener("click", async (event) => {
   const deleteMap = [
     ["deleteCustomer", "customers"],
     ["deletePackage", "packages"],
+    ["deleteFood", "food-items"],
     ["deleteBooking", "bookings"],
     ["deletePayment", "payments"],
     ["deleteAccount", "users"],
@@ -70,9 +89,27 @@ document.addEventListener("click", async (event) => {
 
   if (target.dataset.approveBooking) {
     try {
+      const booking = state.bookings.find((item) => Number(item.id) === Number(target.dataset.approveBooking));
+      if (!booking) {
+        alert("Booking not found.");
+        return;
+      }
+
       await api(`/api/bookings/${target.dataset.approveBooking}`, {
         method: "PUT",
-        body: JSON.stringify({ status: "Confirmed" }),
+        body: JSON.stringify({
+          customer_id: booking.customer_id,
+          package_id: booking.package_id,
+          order_type: booking.order_type || "Package",
+          selected_food_items: booking.selected_food_items || "",
+          event_type: booking.event_type,
+          event_date: dateInput(booking.event_date),
+          event_time: booking.event_time,
+          venue: booking.venue,
+          guests: booking.guests,
+          notes: booking.notes || "",
+          status: "Confirmed",
+        }),
       });
       await loadAll();
     } catch (error) {
@@ -133,6 +170,36 @@ document.addEventListener("click", async (event) => {
       } catch (error) {
         alert(error.message);
       }
+    }
+  }
+});
+
+document.addEventListener("change", (event) => {
+  const target = event.target;
+
+  if (target.matches("[data-order-type]")) {
+    const form = target.closest("form");
+    const builder = form?.querySelector(".per-head-builder");
+    if (builder) {
+      builder.classList.toggle("hidden", target.value !== "Per Head");
+    }
+  }
+
+  if (target.matches("[data-payment-booking]")) {
+    const booking = state.bookings.find((item) => Number(item.id) === Number(target.value));
+    const amountInput = target.closest("form")?.querySelector("[data-payment-amount]");
+    if (amountInput) {
+      amountInput.value = bookingTotal(booking).toFixed(2);
+    }
+  }
+
+  if (target.matches('.food-choice input[type="checkbox"]')) {
+    const group = target.closest(".food-choice-group");
+    const limit = Number(group?.dataset.limit || 0);
+    const checked = group ? Array.from(group.querySelectorAll('input[type="checkbox"]:checked')) : [];
+    if (limit && checked.length > limit) {
+      target.checked = false;
+      alert(`You can select only ${limit} ${group.dataset.category} item${limit > 1 ? "s" : ""}.`);
     }
   }
 });

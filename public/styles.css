@@ -1,15 +1,15 @@
 :root {
-  --bg: #f7f4ff;
+  --bg: #f4f7f2;
   --surface: #ffffff;
-  --surface-soft: #f2edff;
-  --ink: #261c46;
-  --muted: #7462a8;
-  --line: rgba(117, 81, 255, 0.16);
-  --brand: #7e5cff;
-  --brand-dark: #5934d6;
-  --accent: #b892ff;
-  --danger: #c92c9f;
-  --shadow: 0 18px 45px rgba(122, 76, 255, 0.12);
+  --surface-soft: #edf4ec;
+  --ink: #1d2b24;
+  --muted: #617067;
+  --line: rgba(45, 92, 68, 0.16);
+  --brand: #2d5c44;
+  --brand-dark: #1d3d2e;
+  --accent: #c65f2e;
+  --danger: #b43b35;
+  --shadow: 0 18px 45px rgba(36, 72, 54, 0.12);
 }
 
 * {
@@ -109,7 +109,7 @@ th {
   display: grid;
   gap: 1.5rem;
   width: min(440px, 100%);
-  border: 1px solid rgba(126, 92, 255, 0.22);
+  border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
   box-shadow: var(--shadow);
@@ -126,6 +126,33 @@ th {
 .stack {
   display: grid;
   gap: 1rem;
+}
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.auth-tab {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  text-align: center;
+}
+
+.auth-tab.active,
+.auth-tab:hover {
+  background: var(--surface-soft);
+  color: var(--brand-dark);
+}
+
+.auth-form {
+  display: none;
+}
+
+.active-auth-form {
+  display: grid;
 }
 
 .eyebrow {
@@ -206,10 +233,10 @@ th {
 
 .pill {
   margin: 0;
-  border: 1px solid rgba(126, 92, 255, 0.35);
+  border: 1px solid rgba(198, 95, 46, 0.35);
   border-radius: 999px;
-  background: rgba(199, 150, 255, 0.18);
-  color: var(--brand-dark);
+  background: rgba(198, 95, 46, 0.12);
+  color: #8f3c1d;
   padding: 0.55rem 0.9rem;
   font-size: 0.85rem;
   font-weight: 700;
@@ -221,9 +248,9 @@ body[data-role="admin"] .role-pill,
 body[data-role="staff"] .role-pill,
 body[data-role="customer"] #permission-note,
 body[data-role="customer"] .role-pill {
-  border-color: rgba(126, 92, 255, 0.35);
-  background: rgba(199, 150, 255, 0.18);
-  color: var(--brand-dark);
+  border-color: rgba(198, 95, 46, 0.35);
+  background: rgba(198, 95, 46, 0.12);
+  color: #8f3c1d;
 }
 
 #permission-note:empty {
@@ -250,7 +277,7 @@ body[data-role="customer"] .role-pill {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
-  box-shadow: 0 10px 24px rgba(122, 76, 255, 0.08);
+  box-shadow: 0 10px 24px rgba(36, 72, 54, 0.08);
 }
 
 .metric {
@@ -312,15 +339,15 @@ body[data-role="customer"] .role-pill {
 }
 
 .danger:hover {
-  background: #a01877;
+  background: #8d2824;
 }
 
 .secondary {
-  background: #197278;
+  background: #0f766e;
 }
 
 .secondary:hover {
-  background: #12545a;
+  background: #0a5650;
 }
 
 /* Modal Styles */
@@ -407,7 +434,24 @@ body[data-role="customer"] .role-pill {
   background: var(--surface);
 }
 
+.food-card,
+.food-choice {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
 .package-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: var(--surface-soft);
+}
+
+.food-card img,
+.food-choice img {
   display: block;
   width: 100%;
   aspect-ratio: 4 / 3;
@@ -472,10 +516,126 @@ body[data-role="customer"] .role-pill {
   overflow-wrap: anywhere;
 }
 
+.menu-intro {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffdf8;
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+}
+
+.menu-intro h2,
+.menu-intro p,
+.food-card h3,
+.food-card p {
+  margin: 0;
+}
+
+.menu-intro p,
+.food-card p,
+.menu-rule span {
+  color: var(--muted);
+}
+
+.menu-category {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 10px 24px rgba(36, 72, 54, 0.08);
+}
+
+.food-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.food-card > div {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.9rem;
+}
+
+.food-card span {
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.menu-empty {
+  margin: 0;
+}
+
+.per-head-builder {
+  display: grid;
+  gap: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcf9;
+  padding: 1rem;
+}
+
+.menu-rule {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.food-choice-group {
+  min-width: 0;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.food-choice-group legend {
+  color: var(--brand-dark);
+  font-weight: 800;
+  padding: 0 0.4rem;
+}
+
+.food-choice-group legend span {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.food-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.food-choice {
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.food-choice input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.food-choice span {
+  padding: 0.7rem;
+  font-weight: 800;
+}
+
+.food-choice:has(input:checked) {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(198, 95, 46, 0.16);
+}
+
 .status {
   display: inline-flex;
   border-radius: 999px;
-  background: rgba(126, 92, 255, 0.14);
+  background: rgba(45, 92, 68, 0.14);
   color: var(--brand-dark);
   padding: 0.3rem 0.6rem;
   font-size: 0.8rem;
@@ -503,8 +663,13 @@ body[data-role="customer"] .role-pill {
   .metric-grid,
   .profile-grid,
   .profile-details,
+  .menu-intro,
   .form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .menu-intro {
+    display: grid;
   }
 
   .form-grid .wide {

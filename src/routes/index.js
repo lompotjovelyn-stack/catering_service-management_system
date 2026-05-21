@@ -1,6 +1,7 @@
 const authRoutes = require("./authRoutes");
 const bookingRoutes = require("./bookingRoutes");
 const customerRoutes = require("./customerRoutes");
+const foodRoutes = require("./foodRoutes");
 const healthRoutes = require("./healthRoutes");
 const packageRoutes = require("./packageRoutes");
 const paymentRoutes = require("./paymentRoutes");
@@ -13,6 +14,7 @@ function registerRoutes(app) {
   app.use("/api", authRoutes);
   app.use("/api", summaryRoutes);
   app.use("/api", customerRoutes);
+  app.use("/api", foodRoutes);
   app.use("/api", packageRoutes);
   app.use("/api", bookingRoutes);
   app.use("/api", paymentRoutes);

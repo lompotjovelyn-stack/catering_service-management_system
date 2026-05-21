@@ -23,7 +23,15 @@ function canManageBookings() {
 }
 
 function canApproveBookings() {
-  return state.user && ["admin", "staff"].includes(state.user.role);
+  return state.user && state.user.role === "admin";
+}
+
+function bookingTotal(booking) {
+  if (!booking) return 0;
+  if (booking.order_type === "Per Head") {
+    return Number(booking.guests || 0) * Number(booking.per_head_price || 250);
+  }
+  return Number(booking.price || 0);
 }
 
 function canManageAccounts() {
@@ -51,6 +59,12 @@ function dateInput(value) {
   return String(value).slice(0, 10);
 }
 
+function todayInput() {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  return new Date(now.getTime() - offset).toISOString().slice(0, 10);
+}
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -61,5 +75,13 @@ function escapeHtml(value) {
 }
 
 function formData(form) {
-  return Object.fromEntries(new FormData(form).entries());
+  const data = {};
+  for (const [key, value] of new FormData(form).entries()) {
+    if (data[key]) {
+      data[key] = Array.isArray(data[key]) ? [...data[key], value] : [data[key], value];
+    } else {
+      data[key] = value;
+    }
+  }
+  return data;
 }

@@ -55,10 +55,24 @@ async function initDatabase() {
   }
 
   await pool.query(`
+    CREATE TABLE IF NOT EXISTS food_items (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      food_name VARCHAR(120) NOT NULL UNIQUE,
+      category ENUM('Main Dish', 'Rice', 'Dessert', 'Drinks') NOT NULL,
+      description TEXT NOT NULL,
+      image_url VARCHAR(500) NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS bookings (
       id INT AUTO_INCREMENT PRIMARY KEY,
       customer_id INT NOT NULL,
       package_id INT NOT NULL,
+      order_type ENUM('Package', 'Per Head') NOT NULL DEFAULT 'Package',
+      selected_food_items TEXT NULL,
+      per_head_price DECIMAL(10,2) NOT NULL DEFAULT 250,
       event_type VARCHAR(100) NOT NULL,
       event_date DATE NOT NULL,
       event_time TIME NOT NULL,
@@ -71,6 +85,18 @@ async function initDatabase() {
       FOREIGN KEY (package_id) REFERENCES menu_packages(id) ON DELETE RESTRICT
     )
   `);
+
+  if (!(await columnExists("bookings", "order_type"))) {
+    await pool.query("ALTER TABLE bookings ADD COLUMN order_type ENUM('Package', 'Per Head') NOT NULL DEFAULT 'Package' AFTER package_id");
+  }
+
+  if (!(await columnExists("bookings", "selected_food_items"))) {
+    await pool.query("ALTER TABLE bookings ADD COLUMN selected_food_items TEXT NULL AFTER order_type");
+  }
+
+  if (!(await columnExists("bookings", "per_head_price"))) {
+    await pool.query("ALTER TABLE bookings ADD COLUMN per_head_price DECIMAL(10,2) NOT NULL DEFAULT 250 AFTER selected_food_items");
+  }
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS payments (

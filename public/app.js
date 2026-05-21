@@ -28,6 +28,18 @@ async function api(path, options = {}) {
   return data;
 }
 
+function showAuthForm(name) {
+  document.querySelectorAll(".auth-tab").forEach((button) => {
+    button.classList.toggle("active", button.dataset.authTab === name);
+  });
+  document.querySelector("#login-form").classList.toggle("active-auth-form", name === "login");
+  document.querySelector("#register-form").classList.toggle("active-auth-form", name === "register");
+}
+
+document.querySelectorAll(".auth-tab").forEach((button) => {
+  button.addEventListener("click", () => showAuthForm(button.dataset.authTab));
+});
+
 document.querySelector("#login-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   const message = document.querySelector("#login-message");
@@ -35,6 +47,24 @@ document.querySelector("#login-form").addEventListener("submit", async (event) =
 
   try {
     const data = await api("/api/login", {
+      method: "POST",
+      body: JSON.stringify(formData(event.target)),
+    });
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+    window.location.href = rolePath(data.user.role);
+  } catch (error) {
+    message.textContent = error.message;
+  }
+});
+
+document.querySelector("#register-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const message = document.querySelector("#register-message");
+  message.textContent = "";
+
+  try {
+    const data = await api("/api/register", {
       method: "POST",
       body: JSON.stringify(formData(event.target)),
     });

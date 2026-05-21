@@ -1,9 +1,11 @@
 function renderPayments(edit = {}) {
   const title = state.user.role === "customer" ? "My Payments" : "Payment Records";
+  const selectedBooking = state.bookings.find((item) => Number(item.id) === Number(edit.booking_id)) || state.bookings[0];
+  const amount = edit.id ? edit.amount : bookingTotal(selectedBooking);
   const bookingOptions = state.bookings
     .map((item) => ({
       id: item.id,
-      label: `${item.full_name} - ${item.event_type} (${formatDate(item.event_date)})`,
+      label: `${item.full_name} - ${item.event_type} (${formatDate(item.event_date)}) - ${peso(bookingTotal(item))}`,
     }))
     .map((item) => `<option value="${item.id}" ${Number(edit.booking_id) === Number(item.id) ? "selected" : ""}>${escapeHtml(item.label)}</option>`)
     .join("");
@@ -11,9 +13,9 @@ function renderPayments(edit = {}) {
   const formHtml = `
     <form class="form-grid" data-form="payment">
       <input type="hidden" name="id" value="${edit.id || ""}" />
-      <label class="wide">Booking<select name="booking_id" required>${bookingOptions}</select></label>
-      <label>Amount<input name="amount" type="number" min="0" step="0.01" value="${edit.amount || ""}" required /></label>
-      <label>Payment date<input name="payment_date" type="date" value="${dateInput(edit.payment_date)}" required /></label>
+      <label class="wide">Booking<select name="booking_id" data-payment-booking required>${bookingOptions}</select></label>
+      <label>Amount<input name="amount" data-payment-amount type="number" min="0" step="0.01" value="${amount || ""}" readonly required /></label>
+      <label>Payment date<input name="payment_date" type="date" min="${todayInput()}" value="${dateInput(edit.payment_date) || todayInput()}" required /></label>
       <label>Method<select name="method" required>${["Cash", "GCash", "Bank Transfer"].map((method) => `<option value="${method}" ${edit.method === method ? "selected" : ""}>${method}</option>`).join("")}</select></label>
       <label>Status<select name="status">${["Unpaid", "Partial", "Paid", "Refunded"].map((status) => `<option ${edit.status === status ? "selected" : ""}>${status}</option>`).join("")}</select></label>
       <label class="wide">Reference no.<input name="reference_number" value="${escapeHtml(edit.reference_number)}" /></label>
